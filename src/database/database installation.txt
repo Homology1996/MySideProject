@@ -1,0 +1,36 @@
+postgres
+https://www.tecmint.com/install-postgresql-and-pgadmin-in-ubuntu/
+(1) sudo apt update
+(2) sudo apt install postgresql
+
+sudo systemctl is-active postgresql
+sudo systemctl is-enabled postgresql
+sudo systemctl status postgresql
+sudo pg_isready
+
+(3) sudo -u postgres psql
+(4) CREATE DATABASE localhost;
+(5) CREATE USER bill WITH ENCRYPTED PASSWORD '12345';
+(6) GRANT ALL PRIVILEGES ON DATABASE localhost TO bill;
+(7) \quit
+
++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+pgAdmin4
+https://www.commandprompt.com/education/how-to-install-pgadmin-on-ubuntu/
+
+(1) sudo apt install curl
+(2) sudo curl https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo apt-key add
+(3) sudo sh -c 'echo "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list && apt update'
+(4) sudo apt install pgadmin4
+(5) Server -> right click -> Register -> Server
+General: Name = localhost
+Connection: Host name = localhost, Username = bill, Password = 12345
+
++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+讓使用者變成superuser (可以建立新的使用者/新的db)
+sudo -u postgres psql
+\du => 查看現在有哪些使用者可以選擇
+ALTER USER bill WITH SUPERUSER;
+然後再去pgadmin4裡面的Login/Group Roles去調整bill的Privileges

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>統計資料</title>
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="assets/dist/css/bootstrap.min.css">
+	<script src="assets/dist/js/bootstrap.bundle.min.js"></script>
+ 	<!-- jQuery -->
+	<script src="scripts/jquery.min.js"></script>
+	<script src="scripts/jquery.cookie.js"></script>
+	<!-- 下拉式選單 -->
+	<script src="scripts/popper.min.js"></script>
+	<!-- Bootstrap時間挑選器 -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.min.css">
+	<!-- 彈跳視窗sweet alert -->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="sweetalert2.all.min.js"></script>
+	<style>
+		body {
+			text-align: center;
+		}
+	</style>
+</head>
+<body th:with="userKey=${userKey}" th:object="${statistics}">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-12">
+				<table class="table">
+					<tr>
+						<td th:text="會員編號"></td>
+						<td th:text="${userKey}"></td>
+						<td>
+							<form th:action="@{/member}" method="get">
+								<input type="hidden" th:name="userKey" th:value="${userKey}">
+								<button type="submit" class="btn btn-outline-secondary" th:text="返回"></button>
+							</form>
+						</td>
+					</tr>
+				</table>
+			</div><!-- class="col-12" -->
+			<div class="col-12">
+				<table class="table table-hover">
+					<tr>
+						<td th:text="類型"></td>
+						<td th:text="食物"></td>
+						<td th:text="衣服"></td>
+						<td th:text="娛樂"></td>
+						<td th:text="住宿"></td>
+						<td th:text="交通"></td>
+					</tr>
+					<tr>
+						<td th:text="總和"></td>
+						<td th:text="${statistics.get('foodSum')}"></td>
+						<td th:text="${statistics.get('clothesSum')}"></td>
+						<td th:text="${statistics.get('entertainmentSum')}"></td>
+						<td th:text="${statistics.get('accommodationSum')}"></td>
+						<td th:text="${statistics.get('transportationSum')}"></td>
+					</tr>
+					<tr>
+						<td th:text="最小值"></td>
+						<td th:text="${statistics.get('foodMin')}"></td>
+						<td th:text="${statistics.get('clothesMin')}"></td>
+						<td th:text="${statistics.get('entertainmentMin')}"></td>
+						<td th:text="${statistics.get('accommodationMin')}"></td>
+						<td th:text="${statistics.get('transportationMin')}"></td>
+					</tr>
+					<tr>
+						<td th:text="最大值"></td>
+						<td th:text="${statistics.get('foodMax')}"></td>
+						<td th:text="${statistics.get('clothesMax')}"></td>
+						<td th:text="${statistics.get('entertainmentMax')}"></td>
+						<td th:text="${statistics.get('accommodationMax')}"></td>
+						<td th:text="${statistics.get('transportationMax')}"></td>
+					</tr>
+					<tr>
+						<td th:text="平均值"></td>
+						<td th:text="${statistics.get('foodAverage')}"></td>
+						<td th:text="${statistics.get('clothesAverage')}"></td>
+						<td th:text="${statistics.get('entertainmentAverage')}"></td>
+						<td th:text="${statistics.get('accommodationAverage')}"></td>
+						<td th:text="${statistics.get('transportationAverage')}"></td>
+					</tr>
+					<tr>
+						<td th:text="標準差"></td>
+						<td th:text="${statistics.get('foodStandardDeviation')}"></td>
+						<td th:text="${statistics.get('clothesStandardDeviation')}"></td>
+						<td th:text="${statistics.get('entertainmentStandardDeviation')}"></td>
+						<td th:text="${statistics.get('accommodationStandardDeviation')}"></td>
+						<td th:text="${statistics.get('transportationStandardDeviation')}"></td>
+					</tr>
+					<tr>
+						<td th:text="比例"></td>
+						<td th:text="${statistics.get('foodRatio')}"></td>
+						<td th:text="${statistics.get('clothesRatio')}"></td>
+						<td th:text="${statistics.get('entertainmentRatio')}"></td>
+						<td th:text="${statistics.get('accommodationRatio')}"></td>
+						<td th:text="${statistics.get('transportationRatio')}"></td>
+					</tr>
+				</table>
+			</div><!-- class="col-12" -->
+		</div>
+	</div>
+</body>
+</html>

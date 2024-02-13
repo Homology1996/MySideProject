@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>會員中心</title>
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="assets/dist/css/bootstrap.min.css">
+	<script src="assets/dist/js/bootstrap.bundle.min.js"></script>
+ 	<!-- jQuery -->
+	<script src="scripts/jquery.min.js"></script>
+	<script src="scripts/jquery.cookie.js"></script>
+	<!-- 下拉式選單 -->
+	<script src="scripts/popper.min.js"></script>
+	<!-- Bootstrap時間挑選器 -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.min.css">
+	<!-- 彈跳視窗sweet alert -->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="sweetalert2.all.min.js"></script>
+	<style>
+		body {
+			text-align: center;
+		}
+	</style>
+</head>
+<body th:with="userKey=${userKey}, noStatisticsAvailable=${noStatisticsAvailable}, noEmptyDate=${noEmptyDate},
+	updateUserSuccessful=${updateUserSuccessful}, updateRecordSuccessful=${updateRecordSuccessful},
+	createRecordSuccessful=${createRecordSuccessful}" th:object="${records}">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-12">
+				<table class="table">
+					<tr>
+						<td th:text="會員編號"></td>
+						<td th:text="${userKey}"></td>
+						<td>
+							<button type="button" class="btn btn-outline-secondary" th:id="editPassword" th:text="更改密碼"></button>
+						</td>
+						<td>
+							<form th:action="@{/logout}" method="post">
+								<input type="hidden" th:name="userKey" th:value="${userKey}">
+								<button type="submit" class="btn btn-outline-secondary" th:text="登出"></button>
+							</form>
+						</td>
+					</tr>
+					<tr th:id="editPasswordRow" style="display:none">
+						<form th:action="@{/user/update}" method="post">
+							<input type="hidden" th:name="userKey" th:value="${userKey}">
+							<td colspan="3">
+								<input type="text" class="form-control" placeholder="請輸入密碼" th:name="password">
+							</td>
+							<td>
+								<button type="submit" class="btn btn-outline-secondary" th:text="送出"></button>
+							</td>
+						</form>
+					</tr>
+					<tr>
+						<div class="input-group has-validation">
+							<form th:action="@{/statistics}" method="get">
+								<td th:text="統計區間"></td>
+								<td>
+									<input type="text" class="form-control datepicker" th:name="startDate" required
+								 	readonly="readonly" placeholder="起始日期(包含)" aria-describedby="inputGroupPrepend">
+								</td>
+								<td>
+									<input type="text" class="form-control datepicker" th:name="endDate" required
+								 	readonly="readonly" placeholder="結束日期(不包含)" aria-describedby="inputGroupPrepend">
+								</td>
+								<td>
+									<input type="hidden" th:name="userKey" th:value="${userKey}">
+									<button type="submit" class="btn btn-outline-secondary" th:text="送出"></button>
+								</td>
+							</form>
+						</div>
+					</tr>
+				</table>
+			</div><!-- class="col-12" -->
+			<div class="col-12">
+				<table class="table table-hover">
+					<tr>
+						<td th:text="日期"></td>
+						<td th:text="食物"></td>
+						<td th:text="衣服"></td>
+						<td th:text="娛樂"></td>
+						<td th:text="住宿"></td>
+						<td th:text="交通"></td>
+						<td></td>
+					</tr>
+					<tr th:each="record:${records}">
+						<form th:action="@{/record/update}" method="get">
+							<td th:id="${'date_' + record.getRecordKey()}" th:text="${record.getRecordDate()}"></td>
+							<td th:id="${'dateId_' + record.getRecordKey()}" style="display:none">
+								<input type="text" class="form-control datepicker" th:name="recordDate" required
+									readonly="readonly" th:value="${record.getRecordDate()}" aria-describedby="inputGroupPrepend">
+							</td>
+							<td th:id="${'food_' + record.getRecordKey()}" th:text="${record.getFood()}"></td>
+							<td th:id="${'foodId_' + record.getRecordKey()}" style="display:none">
+								<input type="number" class="form-control" th:name="food" th:value="${record.getFood()}" pattern="[0-9]{10}">
+							</td>
+							<td th:id="${'clothes_' + record.getRecordKey()}" th:text="${record.getClothes()}"></td>
+							<td th:id="${'clothesId_' + record.getRecordKey()}" style="display:none">
+								<input type="number" class="form-control" th:name="clothes" th:value="${record.getClothes()}" pattern="[0-9]{10}">
+							</td>
+							<td th:id="${'entertainment_' + record.getRecordKey()}" th:text="${record.getEntertainment()}"></td>
+							<td th:id="${'entertainmentId_' + record.getRecordKey()}" style="display:none">
+								<input type="number" class="form-control" th:name="entertainment" th:value="${record.getEntertainment()}" pattern="[0-9]{10}">
+							</td>
+							<td th:id="${'accommodation_' + record.getRecordKey()}" th:text="${record.getAccommodation()}"></td>
+							<td th:id="${'accommodationId_' + record.getRecordKey()}" style="display:none">
+								<input type="number" class="form-control" th:name="accommodation" th:value="${record.getAccommodation()}" pattern="[0-9]{10}">
+							</td>
+							<td th:id="${'transportation_' + record.getRecordKey()}" th:text="${record.getTransportation()}"></td>
+							<td th:id="${'transportationId_' + record.getRecordKey()}" style="display:none">
+								<input type="number" class="form-control" th:name="transportation" th:value="${record.getTransportation()}" pattern="[0-9]{10}">
+							</td>
+							<td th:id="${'update_' + record.getRecordKey()}">
+								<button type="button" class="btn btn-outline-secondary" th:text="更改"></button>
+							</td>
+							<td th:id="${'updateId_' + record.getRecordKey()}" style="display:none">
+								<button type="submit" class="btn btn-outline-secondary" th:text="送出"></button>
+							</td>
+							<input type="hidden" name="recordKey" th:value="${record.getRecordKey()}">
+							<input type="hidden" name="userKey" th:value="${userKey}">
+						</form>
+						<script th:inline="javascript">
+							/*在th:each裡面放入script，這樣子就會有針對每一筆資料所產生的script*/
+							/*<![CDATA[*/
+							$("#update_" + /*[[${record.getRecordKey()}]]*/ "0").click(function() {
+								$("#date_" + /*[[${record.getRecordKey()}]]*/ "0").hide();
+								$("#dateId_" + /*[[${record.getRecordKey()}]]*/ "0").show();
+								$("#food_" + /*[[${record.getRecordKey()}]]*/ "0").hide();
+								$("#foodId_" + /*[[${record.getRecordKey()}]]*/ "0").show();
+								$("#clothes_" + /*[[${record.getRecordKey()}]]*/ "0").hide();
+								$("#clothesId_" + /*[[${record.getRecordKey()}]]*/ "0").show();
+								$("#entertainment_" + /*[[${record.getRecordKey()}]]*/ "0").hide();
+								$("#entertainmentId_" + /*[[${record.getRecordKey()}]]*/ "0").show();
+								$("#accommodation_" + /*[[${record.getRecordKey()}]]*/ "0").hide();
+								$("#accommodationId_" + /*[[${record.getRecordKey()}]]*/ "0").show();
+								$("#transportation_" + /*[[${record.getRecordKey()}]]*/ "0").hide();
+								$("#transportationId_" + /*[[${record.getRecordKey()}]]*/ "0").show();
+								$("#update_" + /*[[${record.getRecordKey()}]]*/ "0").hide();
+								$("#updateId_" + /*[[${record.getRecordKey()}]]*/ "0").show();
+								$("input[name='recordDate']").datepicker({
+									format: 'yyyy/mm/dd',
+									autoclose: true,
+									weekStart: 1
+								});
+							});
+							/*]]>*/
+						</script>
+					</tr><!-- th:each="record:${records}" -->
+					<tr>
+						<form th:action="@{/record/create}" method="post">
+							<td>
+								<input type="text" class="form-control datepicker" th:name="recordDate" required
+								 	readonly="readonly" placeholder="輸入日期" aria-describedby="inputGroupPrepend">
+							</td>
+							<td><input type="number" class="form-control" pattern="[0-9]{10}"th:name="food"></td>
+							<td><input type="number" class="form-control" pattern="[0-9]{10}" th:name="clothes"></td>
+							<td><input type="number" class="form-control" pattern="[0-9]{10}" th:name="entertainment"></td>
+							<td><input type="number" class="form-control" pattern="[0-9]{10}" th:name="accommodation"></td>
+							<td><input type="number" class="form-control" pattern="[0-9]{10}" th:name="transportation"></td>
+							<td><button type="submit" class="btn btn-outline-secondary" th:text="新增"></button></td>
+							<input type="hidden" th:name="userKey" th:value="${userKey}">
+						</form>
+					</tr>
+				</table>
+			</div><!-- class="col-12" -->
+		</div><!-- class="row" -->
+	</div><!-- class="container-fluid" -->
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		/*日期篩選器*/
+		$(document).ready(function() {
+			$("input[name='startDate']").datepicker({
+				format: 'yyyy/mm/dd',
+				autoclose: true,
+				weekStart: 1
+			});
+			$("input[name='endDate']").datepicker({
+				format: 'yyyy/mm/dd',
+				autoclose: true,
+				weekStart: 1
+			});
+			$("input[name='recordDate']").datepicker({
+				format: 'yyyy/mm/dd',
+				autoclose: true,
+				weekStart: 1
+			});
+			if(/*[[${noStatisticsAvailable}]]*/ false){
+				Swal.fire({
+					title:"尚無可統計資料",
+					icon:"error",
+				})
+			}
+			if(/*[[${noEmptyDate}]]*/ false){
+				Swal.fire({
+					title:"日期不可空白",
+					icon:"error",
+				})
+			}
+			if(/*[[${updateUserSuccessful}]]*/ false){
+				Swal.fire({
+					title:"密碼更新成功",
+					icon:"success",
+				})
+			}
+			if(/*[[${updateRecordSuccessful}]]*/ false){
+				Swal.fire({
+					title:"紀錄更新成功",
+					icon:"success",
+				})
+			}
+			if(/*[[${createRecordSuccessful}]]*/ false){
+				Swal.fire({
+					title:"紀錄建立成功",
+					icon:"success",
+				})
+			}
+			$("#editPassword").click(function() {
+				$("#editPasswordRow").fadeIn("slow");
+			});
+		});
+		/*]]>*/
+	</script>
+</body>
+</html>

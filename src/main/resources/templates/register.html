@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>會員註冊</title>
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="assets/dist/css/bootstrap.min.css">
+	<script src="assets/dist/js/bootstrap.bundle.min.js"></script>
+ 	<!-- jQuery -->
+	<script src="scripts/jquery.min.js"></script>
+	<script src="scripts/jquery.cookie.js"></script>
+	<!-- 下拉式選單 -->
+	<script src="scripts/popper.min.js"></script>
+	<!-- Bootstrap時間挑選器 -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.min.css">
+	<!-- 彈跳視窗sweet alert -->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="sweetalert2.all.min.js"></script>
+	<style>
+		body {
+			text-align: center;
+		}
+	</style>
+</head>
+<body th:with="error=${error}">
+	<form th:action="@{/register/check}" method="post">
+		<div class="container-fluid">
+			<div class="col-12 col-md-6">
+				<table class="table">
+					<tr>
+						<td th:text="帳號"></td>
+						<td>
+							<div class="input-group">
+								<input type="text" class="form-control" th:name="account" required>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div><!-- class="col-12 col-md-6" -->
+			<div class="col-12 col-md-6">
+				<table class="table">
+					<tr>
+						<td th:text="密碼"></td>
+						<td>
+							<div class="input-group">
+								<input type="password" class="form-control" th:name="password">
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div><!-- class="col-12 col-md-6" -->
+			<div class="col-12">
+				<table class="table">
+					<tr>
+						<td>
+							<a th:href="@{/}">
+								<button type="button" class="btn btn-outline-secondary" th:text="返回首頁"></button>
+							</a>
+						</td>
+						<td>
+							<button type="reset" class="btn btn-outline-secondary" th:text="重設"></button>
+						</td>
+						<td>
+							<button type="submit" class="btn btn-outline-secondary" th:text="送出"></button>
+						</td>
+					</tr>
+				</table>
+			</div><!-- class="col-12" -->
+		</div><!-- class="container-fluid" -->
+	</form>
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		if(/*[[${error}]]*/ false){
+			Swal.fire({
+				title:"帳號已被註冊",
+				icon:"error",
+			})
+		}
+		/*]]>*/
+	</script>
+</body>
+</html>
