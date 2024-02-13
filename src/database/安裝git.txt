@@ -1,0 +1,28 @@
+
+安裝git
+sudo apt-get install git
+git --version (確認版本)
+
+設定帳號密碼
+git config --global user.name "使用者名稱"
+git config --global user.email "email"
+git config --l (確認設定檔)
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+設定版控
+
+1: 在github官網建立一個repository，名稱與專案相同即可
+2: 建立Personal Access Token
+Settings -> Developer settings -> Personal access tokens -> Generate new token -> Expiration(No expiration) + 勾選repo -> 複製token
+3: 新增專案的local repository: 到專案目錄裡面輸入git init
+(如果不想要再讓git控制，那就只要刪除.git資料夾即可)
+4: 設定專案的remote repository: git remote add origin https://github.com/<使用者名稱>/<專案名稱>.git
+(例如: git remote add origin https://github.com/Homology1996/MySideProject.git)
+5: git pull origin master
+6: 把全部檔案加到local repository: git add .
+7: 把剛剛加的檔案附上commit紀錄: git commit -m "commit訊息"
+8: 上傳到remote repository: git push
+如果是第一次上傳，那就需要設定upstream以及使用者資訊
+git push -u origin <分支名稱>
+使用者密碼則是輸入Personal Access Token
