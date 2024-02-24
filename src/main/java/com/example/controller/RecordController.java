@@ -1,14 +1,19 @@
 package com.example.controller;
 
+import com.example.model.Record;
 import com.example.service.RecordIF;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -100,6 +105,35 @@ public class RecordController extends ControllerBase {
 			model.addAttribute("statistics", statistics);
 			return "statistics";
 		}
+	}
+	
+	private final Comparator<Record> sumComparator = (r1, r2) -> {
+		int s1 = r1.getFood() + r1.getClothes() + r1.getEntertainment() + r1.getAccommodation() + r1.getTransportation();
+		int s2 = r2.getFood() + r2.getClothes() + r2.getEntertainment() + r2.getAccommodation() + r2.getTransportation();
+		return Integer.compare(s1, s2);
+	};
+	
+	/**
+	 * 顯示最高單筆資料 (欄位總和)
+	 * */
+	@GetMapping("/highlight/{userKey}")
+	@ResponseBody
+	public String highlight(@PathVariable(value = "userKey", required = true) int userKey) {
+		/*
+		 * 此方法示範了幾個概念
+		 * 1: 在thymeleaf使用ajax
+		 * 2: 在thymeleaf傳送的url裡面使用path variable
+		 * 3: 在springboot接收的參數使用path variable
+		 * 4: 在springboot回傳結果不是以往的頁面url，而是json字串
+		 * */
+		log.debug("Handling ajax request");
+		JSONObject result = new JSONObject();
+		result.put("userKey", userKey);
+		List<Record> records = recordIF.loadRecordsByUserKey(userKey);
+		List<Record> sorted = records.stream().sorted(sumComparator).collect(Collectors.toList());
+		int max = sorted.get(sorted.size() - 1).getRecordKey();
+		result.put("recordKey", max);
+		return result.toString();
 	}
 	
 }

@@ -85,9 +85,11 @@
 						<td th:text="娛樂"></td>
 						<td th:text="住宿"></td>
 						<td th:text="交通"></td>
-						<td></td>
+						<td>
+							<button type="button" class="btn btn-outline-secondary" th:id="highlight" th:text="最高紀錄"></button>
+						</td>
 					</tr>
-					<tr th:each="record:${records}">
+					<tr th:each="record:${records}" th:id="${'record_' + record.getRecordKey()}">
 						<form th:action="@{/record/update}" method="get">
 							<td th:id="${'date_' + record.getRecordKey()}" th:text="${record.getRecordDate()}"></td>
 							<td th:id="${'dateId_' + record.getRecordKey()}" style="display:none">
@@ -220,6 +222,26 @@
 			}
 			$("#editPassword").click(function() {
 				$("#editPasswordRow").fadeIn("slow");
+			});
+			
+			$("#highlight").click(function() {
+				$.ajax({
+					url: /*[[@{/highlight/} + ${userKey}]]*/ "/highlight",
+					type: "get",
+					dataType: "text",	// 資料回傳的型態
+					data: {},			// 傳送至server的資料
+					async: true,
+					success: function(data) {
+						console.log(data);
+						var json = JSON.parse(data);
+						var recordKey = json.recordKey;
+						$("#record_" + recordKey).css("background-color", "rgb(250, 125, 125)");
+					},
+					error: function(jqXHR, e) {
+						console.log(jqXHR);
+						console.log(e);
+					}
+				});
 			});
 		});
 		/*]]>*/
