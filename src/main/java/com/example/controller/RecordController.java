@@ -1,7 +1,13 @@
 package com.example.controller;
 
 import com.example.model.Record;
+import com.example.service.PlotIF;
 import com.example.service.RecordIF;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.json.JSONObject;
@@ -25,16 +31,28 @@ public class RecordController extends ControllerBase {
 	@Autowired
 	private RecordIF recordIF;
 	
+	@Autowired
+	private PlotIF plotIF;
+	
 	/**
 	 * 進入會員中心，並顯示相關資訊
 	 * */
 	@GetMapping("/member")
 	public String toMember(Model model, RedirectAttributes redirectAttributes,
-			@RequestParam(value = "userKey", required = true) int userKey) {
+			@RequestParam(value = "userKey", required = true) int userKey,
+			@RequestParam(value = "imagePath", required = false) String imagePath) {
 		if (!super.isLogin(userKey)) {
 			return super.setupNotLoginMessage(redirectAttributes);
 		}
 		super.setupUserKeyAndRecords(model, userKey);
+		if (imagePath != null && !imagePath.isBlank()) {
+			File file = new File(imagePath);
+			if (file.exists()) {
+				if (file.delete()) {
+					log.debug("file deleted");
+				}
+			}
+		}
 		return "member";
 	}
 	
@@ -85,6 +103,10 @@ public class RecordController extends ControllerBase {
 		return super.redirectToMember(redirectAttributes, userKey);
 	}
 	
+	private int getRatioInt(Map<String, String> statistics, String name) {
+		return Integer.parseInt(Long.toString(Math.round(Double.parseDouble(statistics.get(name)))));
+	}
+	
 	/**
 	 * 顯示統計資料
 	 * */
@@ -97,12 +119,21 @@ public class RecordController extends ControllerBase {
 			return super.setupNotLoginMessage(redirectAttributes);
 		}
 		model.addAttribute("userKey", userKey);
+		model.addAttribute("startDate", startDate);
+		model.addAttribute("endDate", endDate);
 		Map<String, String> statistics = recordIF.getStatistics(startDate, endDate, userKey);
 		if (statistics == null || statistics.size() == 0) {
 			redirectAttributes.addFlashAttribute("noStatisticsAvailable", true);
 			return super.redirectToMember(redirectAttributes, userKey);
 		} else {
 			model.addAttribute("statistics", statistics);
+			int food = this.getRatioInt(statistics, "foodRatio");
+			int clothes = this.getRatioInt(statistics, "clothesRatio");
+			int entertainment = this.getRatioInt(statistics, "entertainmentRatio");
+			int accommodation = this.getRatioInt(statistics, "accommodationRatio");
+			int transportation = this.getRatioInt(statistics, "transportationRatio");
+			String imagePath = plotIF.drawPlot(food, clothes, entertainment, accommodation, transportation);
+			model.addAttribute("imagePath", imagePath);
 			return "statistics";
 		}
 	}
@@ -136,4 +167,34 @@ public class RecordController extends ControllerBase {
 		return result.toString();
 	}
 	
+	/**
+	 * 取得長條圖
+	 * */
+	@GetMapping("/statistics/plot")
+	@ResponseBody
+	public String plot(@RequestParam(value = "imagePath", required = true) String imagePath) {
+		JSONObject result = new JSONObject();
+		Path path = Paths.get(imagePath);
+		String base64 = null;
+		try {
+			byte[] fileContent = Files.readAllBytes(path);
+			byte[] encoded = Base64.getEncoder().encode(fileContent);
+	        base64 =  new String(encoded);
+		} catch (IOException ioe) {
+			log.error("Unable to get file content", ioe);
+			result.put("IOE", ioe.toString());
+		}
+		if (base64 == null || base64.isBlank()) {
+			result.put("imgSrc", "");
+		} else {
+			result.put("imgSrc", "data:image/png;base64, " + base64);
+			File image = path.toFile();
+			if (image.exists()) {
+				if (image.delete()) {
+					log.debug("image deleted");
+				}
+			}
+		}
+		return result.toString();
+	}
 }
