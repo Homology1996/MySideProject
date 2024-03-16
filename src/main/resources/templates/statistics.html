@@ -24,7 +24,8 @@
 		}
 	</style>
 </head>
-<body th:with="userKey=${userKey}, startDate=${startDate}, endDate=${endDate}, imagePath=${imagePath}" th:object="${statistics}">
+<body th:with="userKey=${userKey}, startDate=${startDate}, endDate=${endDate},
+ 	imagePath=${imagePath}, coordinatePath=${coordinatePath}" th:object="${statistics}">
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-12">
@@ -36,7 +37,8 @@
 							<form th:action="@{/member}" method="get">
 								<input type="hidden" th:name="userKey" th:value="${userKey}">
 								<input type="hidden" th:name="imagePath" th:value="${imagePath}">
-								<button type="submit" class="btn btn-outline-secondary" id="return" th:text="返回" style="display:none"></button>
+								<input type="hidden" th:name="coordinatePath" th:value="${coordinatePath}">
+								<button type="submit" class="btn btn-outline-secondary" id="return" th:text="返回"></button>
 							</form>
 						</td>
 					</tr>
@@ -103,7 +105,7 @@
 				</table>
 			</div><!-- class="col-12" -->
 			<div class="col-12" id="plotDiv">
-				<button type="button" class="btn btn-outline-secondary" th:text="顯示長條圖" id="plotButton" style="display:none"></button>
+				<button type="button" class="btn btn-outline-secondary" th:text="顯示長條圖" id="plotButton"></button>
 				<div id="plot"></div>
 			</div><!-- class="col-12" -->
 		</div>
@@ -111,21 +113,19 @@
 	<script th:inline="javascript">
 		/*<![CDATA[*/
 		$(document).ready(function() {
-			let delay = 3000;
-			$("#return").fadeIn(delay);
-			$("#plotButton").fadeIn(delay);
 			$("#plotButton").click(function() {
 				$.ajax({
 					url: /*[[@{/statistics/plot}]]*/ "/statistics/plot",
 					type: "get",
 					dataType: "text",
-					data: {"imagePath": /*[[${imagePath}]]*/ ""},
+					data: {"imagePath": /*[[${imagePath}]]*/ "",
+						"coordinatePath": /*[[${coordinatePath}]]*/ ""},
 					async: false,
 					cache: false,
 					success: function(data) {
 						var json = JSON.parse(data);
 						var plot = document.getElementById("plot");
-						plot.innerHTML = "<img src='" + json.imgSrc + "' width=750 height=750>";
+						plot.innerHTML = "<img src='" + json.imgSrc + "' width=1200 height=600>";
 					},
 					error: function(jqXHR, e) {
 						console.log(jqXHR);

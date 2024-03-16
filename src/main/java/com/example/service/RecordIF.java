@@ -10,6 +10,8 @@ public interface RecordIF {
 	
 	List<Record> loadRecordsByUserKey(int userKey);
 	
+	List<Record> loadRecordsByUserKey(int userKey, String startDate, String endDate);
+	
 	void createRecord(int recordKey, String recordDate, int userKey,
 			int food, int clothes, int entertainment, int accommodation, int transportation);
 	

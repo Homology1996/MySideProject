@@ -40,13 +40,22 @@ public class RecordController extends ControllerBase {
 	@GetMapping("/member")
 	public String toMember(Model model, RedirectAttributes redirectAttributes,
 			@RequestParam(value = "userKey", required = true) int userKey,
-			@RequestParam(value = "imagePath", required = false) String imagePath) {
+			@RequestParam(value = "imagePath", required = false) String imagePath, 
+			@RequestParam(value = "coordinatePath", required = false) String coordinatePath) {
 		if (!super.isLogin(userKey)) {
 			return super.setupNotLoginMessage(redirectAttributes);
 		}
 		super.setupUserKeyAndRecords(model, userKey);
 		if (imagePath != null && !imagePath.isBlank()) {
 			File file = new File(imagePath);
+			if (file.exists()) {
+				if (file.delete()) {
+					log.debug("file deleted");
+				}
+			}
+		}
+		if (coordinatePath != null && !coordinatePath.isBlank()) {
+			File file = new File(coordinatePath);
 			if (file.exists()) {
 				if (file.delete()) {
 					log.debug("file deleted");
@@ -127,12 +136,35 @@ public class RecordController extends ControllerBase {
 			return super.redirectToMember(redirectAttributes, userKey);
 		} else {
 			model.addAttribute("statistics", statistics);
-			int food = this.getRatioInt(statistics, "foodRatio");
-			int clothes = this.getRatioInt(statistics, "clothesRatio");
-			int entertainment = this.getRatioInt(statistics, "entertainmentRatio");
-			int accommodation = this.getRatioInt(statistics, "accommodationRatio");
-			int transportation = this.getRatioInt(statistics, "transportationRatio");
-			String imagePath = plotIF.drawPlot(food, clothes, entertainment, accommodation, transportation);
+			List<Record> records = recordIF.loadRecordsByUserKey(userKey, startDate, endDate);
+			List<Integer> food = new ArrayList<>();
+			List<Integer> clothes = new ArrayList<>();
+			List<Integer> entertainment = new ArrayList<>();
+			List<Integer> accommodation = new ArrayList<>();
+			List<Integer> transportation = new ArrayList<>();
+			List<Integer> ratio = new ArrayList<>();
+			for (Record record : records) {
+				food.add(record.getFood());
+				clothes.add(record.getClothes());
+				entertainment.add(record.getEntertainment());
+				accommodation.add(record.getAccommodation());
+				transportation.add(record.getTransportation());
+			}
+			ratio.add(this.getRatioInt(statistics, "foodRatio"));
+			ratio.add(this.getRatioInt(statistics, "clothesRatio"));
+			ratio.add(this.getRatioInt(statistics, "entertainmentRatio"));
+			ratio.add(this.getRatioInt(statistics, "accommodationRatio"));
+			ratio.add(this.getRatioInt(statistics, "transportationRatio"));
+			String uuid = UUID.randomUUID().toString();
+			String scriptPath = WORKING_DIRECTORY + "/src/main/resources/static/scripts/drawPlot.py";
+			String uuidPrefix = WORKING_DIRECTORY + "/images/" + uuid;
+			String coordinate = plotIF.generateCoordinatesFile(uuidPrefix + ".txt", food, clothes,
+					entertainment, accommodation, transportation, ratio);
+			String coordinatePath = super.getFilePathWhenFileExists(new File(coordinate));
+			String image = plotIF.drawPlot(scriptPath, coordinatePath, uuidPrefix + ".png", food, clothes,
+					entertainment, accommodation, transportation, ratio);
+			String imagePath = super.getFilePathWhenFileExists(new File(image));
+			model.addAttribute("coordinatePath", coordinatePath);
 			model.addAttribute("imagePath", imagePath);
 			return "statistics";
 		}
@@ -172,7 +204,8 @@ public class RecordController extends ControllerBase {
 	 * */
 	@GetMapping("/statistics/plot")
 	@ResponseBody
-	public String plot(@RequestParam(value = "imagePath", required = true) String imagePath) {
+	public String plot(@RequestParam(value = "imagePath", required = true) String imagePath,
+			@RequestParam(value = "coordinatePath", required = true) String coordinatePath) {
 		JSONObject result = new JSONObject();
 		Path path = Paths.get(imagePath);
 		String base64 = null;
@@ -192,6 +225,12 @@ public class RecordController extends ControllerBase {
 			if (image.exists()) {
 				if (image.delete()) {
 					log.debug("image deleted");
+				}
+			}
+			File coordinate = new File(coordinatePath);
+			if (coordinate.exists()) {
+				if (coordinate.delete()) {
+					log.debug("coordinate deleted");
 				}
 			}
 		}

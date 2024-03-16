@@ -59,6 +59,32 @@ public class RecordIFImpl implements RecordIF {
 	}
 	
 	@Override
+	public List<Record> loadRecordsByUserKey(int userKey, String startDate, String endDate) {
+		List<Record> filteredRecords = new ArrayList<>();
+		List<Record> records = this.loadRecordsByUserKey(userKey);
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+		long startTime = 0, endTime = 0;
+		try {
+			Date parsedStartDate = formatter.parse(startDate);
+			Date parsedEndDate = formatter.parse(endDate);
+			startTime = parsedStartDate.getTime();
+			endTime = parsedEndDate.getTime();
+		} catch (Exception e) {
+			log.error("The input date is illegal", e);
+			return null;
+		}
+		for (Record record : records) {
+			try {
+				long time = formatter.parse(record.getRecordDate()).getTime();
+				if (time >= startTime && time < endTime) {
+					filteredRecords.add(record);
+				}
+			} catch (Exception ignore) {}
+		}
+		return filteredRecords;
+	}
+	
+	@Override
 	@Transactional
 	public void createRecord(int recordKey, String recordDate, int userKey,
 			int food, int clothes, int entertainment, int accommodation, int transportation) {
@@ -117,17 +143,17 @@ public class RecordIFImpl implements RecordIF {
 			return null;
 		}
 		
-		List<Record> filterdRecords = new ArrayList<>();
+		List<Record> filteredRecords = new ArrayList<>();
 		List<Record> records = this.loadRecordsByUserKey(userKey);
 		for (Record record : records) {
 			try {
 				long time = formatter.parse(record.getRecordDate()).getTime();
 				if (time >= startTime && time < endTime) {
-					filterdRecords.add(record);
+					filteredRecords.add(record);
 				}
 			} catch (Exception ignore) {}
 		}
-		if (filterdRecords.size() < 1) {
+		if (filteredRecords.size() < 1) {
 			return null;
 		}
 		
@@ -167,7 +193,7 @@ public class RecordIFImpl implements RecordIF {
 		double transportationRatio = 0.0;
 		List<Double> allTransportation = new ArrayList<>();
 		
-		for (Record record : filterdRecords) {
+		for (Record record : filteredRecords) {
 			int food = record.getFood();
 			int clothes = record.getClothes();
 			int entertainment = record.getEntertainment();
