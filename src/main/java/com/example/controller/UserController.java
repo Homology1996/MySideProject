@@ -42,7 +42,7 @@ public class UserController extends ControllerBase {
 				user -> user.getAccount().equals(account) && user.getPassword().equals(password)).findFirst();
 		if (currentUser.isPresent()) {
 			int userKey = currentUser.get().getUserKey();
-			super.setupUserKeyAndRecords(model, userKey); // 要把變數從後端傳送到前端時，就需要使用model
+			model.addAttribute("userKey", userKey); // 要把變數從後端傳送到前端時，就需要使用model
 			super.httpSession.setAttribute("user_" + userKey, account);
 			log.info("user_" + userKey + " login");
 			return "member";

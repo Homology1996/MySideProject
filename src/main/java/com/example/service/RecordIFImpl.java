@@ -4,7 +4,12 @@ import com.example.model.Record;
 import com.example.dao.RecordDaoIF;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +56,7 @@ public class RecordIFImpl implements RecordIF {
 		List<Record> records = null;
 		try {
 			records = recordDao.loadRecordsByUserKey(userKey).stream()
-					.sorted(this.recordComparator).collect(Collectors.toList());
+					.sorted(this.recordComparator.reversed()).collect(Collectors.toList());
 		} catch (Exception e) {
 			log.error("Cannot load records", e);
 		}
@@ -272,4 +277,41 @@ public class RecordIFImpl implements RecordIF {
 		return result;
 	}
 	
+	@Override
+	public JSONObject transformRecordIntoJSONObject(Record record) {
+		JSONObject result = new JSONObject();
+		/*
+		Class<?> recordClass = Record.class;
+		Field[] fields = recordClass.getDeclaredFields();
+		Method[] methods = recordClass.getDeclaredMethods();
+		for (Field field : fields) {
+			String fieldName = field.getName();
+			for (Method method : methods) {
+				if (method.getName().equals("get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1))) {
+					try {
+						Object getRecord = method.invoke(record);
+						result.put(fieldName, getRecord);
+					} catch (InvocationTargetException | IllegalAccessException ignore) {}
+					break;
+				}
+			}
+		}
+		*/
+		result.put("recordKey", record.getRecordKey());
+		result.put("recordDate", record.getRecordDate());
+		result.put("food", record.getFood());
+		result.put("clothes", record.getClothes());
+		result.put("entertainment", record.getEntertainment());
+		result.put("accommodation", record.getAccommodation());
+		result.put("transportation", record.getTransportation());
+		return result;
+	}
+	
+	@Override
+	public JSONArray transformRecordsIntoJSONArray(List<Record> records) {
+		JSONArray result = new JSONArray();
+		records.forEach(record -> result.put(this.transformRecordIntoJSONObject(record)));
+		return result;
+	}
+
 }
