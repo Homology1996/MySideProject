@@ -35,44 +35,44 @@ def main(inputPath, outputPath):
   # Draw plot
   fig, axs = plt.subplots(2, 3, figsize=(18, 9))
   # Food
-  axs[0, 0].plot(range(len(foodCoordinates)), foodCoordinates)
+  axs[0, 0].plot(range(len(foodCoordinates)), foodCoordinates, color = "red")
   axs[0, 0].set_xticks([], [])
   axs[0, 0].set_title("Food")
   axs[0, 0].set_ylabel("Expense")
   axs[0, 0].set_xlabel("Date")
   # Clothes
-  axs[0, 1].plot(range(len(clothesCoordinates)), clothesCoordinates)
+  axs[0, 1].plot(range(len(clothesCoordinates)), clothesCoordinates, color = "gold")
   axs[0, 1].set_xticks([], [])
   axs[0, 1].set_title("Clothes")
   axs[0, 1].set_ylabel("Expense")
   axs[0, 1].set_xlabel("Date")
   # Entertainment
-  axs[0, 2].plot(range(len(entertainmentCoordinates)), entertainmentCoordinates)
+  axs[0, 2].plot(range(len(entertainmentCoordinates)), entertainmentCoordinates, color = "green")
   axs[0, 2].set_xticks([], [])
   axs[0, 2].set_title("Entertainment")
   axs[0, 2].set_ylabel("Expense")
   axs[0, 2].set_xlabel("Date")
   # Accommodation
-  axs[1, 0].plot(range(len(accommodationCoordinates)), accommodationCoordinates)
+  axs[1, 0].plot(range(len(accommodationCoordinates)), accommodationCoordinates, color = "blue")
   axs[1, 0].set_xticks([], [])
   axs[1, 0].set_title("Accommodation")
   axs[1, 0].set_ylabel("Expense")
   axs[1, 0].set_xlabel("Date")
   # Transportation
-  axs[1, 1].plot(range(len(transportationCoordinates)), transportationCoordinates)
+  axs[1, 1].plot(range(len(transportationCoordinates)), transportationCoordinates, color = "black")
   axs[1, 1].set_xticks([], [])
   axs[1, 1].set_title("Transportation")
   axs[1, 1].set_ylabel("Expense")
   axs[1, 1].set_xlabel("Date")
   # Ratio
-  axs[1, 2].bar(range(len(ratioCoordinates)), ratioCoordinates)
+  axs[1, 2].bar(range(len(ratioCoordinates)), ratioCoordinates, color = ["red", "gold", "green", "blue", "black"])
   axs[1, 2].set_xticks([], [])
   axs[1, 2].set_title("Expense")
   axs[1, 2].set_ylabel("Ratio")
   axs[1, 2].set_xlabel("Type")
-  if (len(ratioCoordinates) == 5):
-    xticks = ["fo", "cl", "en", "ac", "tr"]
-    axs[1, 2].set_xticks(range(len(ratioCoordinates)), xticks)
+  #if (len(ratioCoordinates) == 5):
+    #xticks = ["fo", "cl", "en", "ac", "tr"]
+    #axs[1, 2].set_xticks(range(len(ratioCoordinates)), xticks)
   # Save figure
   fig.savefig(outputPath)
   plt.close(fig)  
