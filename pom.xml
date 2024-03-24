@@ -11,6 +11,7 @@
 	<groupId>com.example</groupId>
 	<artifactId>MySideProject</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
 	<name>MySideProject</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
@@ -71,6 +72,11 @@
 			<artifactId>json</artifactId>
 			<version>20231013</version>
 		</dependency>
+		<dependency>
+    		<groupId>com.google.guava</groupId>
+    		<artifactId>failureaccess</artifactId>
+    		<version>1.0.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -80,6 +86,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
+		<finalName>${project.artifactId}</finalName>
 	</build>
 
 </project>
