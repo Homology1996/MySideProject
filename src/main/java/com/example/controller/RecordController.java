@@ -39,29 +39,11 @@ public class RecordController extends ControllerBase {
 	 * */
 	@GetMapping("/member")
 	public String toMember(Model model, RedirectAttributes redirectAttributes,
-			@RequestParam(value = "userKey", required = true) int userKey,
-			@RequestParam(value = "imagePath", required = false) String imagePath, 
-			@RequestParam(value = "coordinatePath", required = false) String coordinatePath) {
+			@RequestParam(value = "userKey", required = true) int userKey) {
 		if (!super.isLogin(userKey)) {
 			return super.setupNotLoginMessage(redirectAttributes);
 		}
 		model.addAttribute("userKey", userKey);
-		if (imagePath != null && !imagePath.isBlank()) {
-			File file = new File(imagePath);
-			if (file.exists()) {
-				if (file.delete()) {
-					log.debug("file deleted");
-				}
-			}
-		}
-		if (coordinatePath != null && !coordinatePath.isBlank()) {
-			File file = new File(coordinatePath);
-			if (file.exists()) {
-				if (file.delete()) {
-					log.debug("file deleted");
-				}
-			}
-		}
 		return "member";
 	}
 	
@@ -78,8 +60,7 @@ public class RecordController extends ControllerBase {
 		 * 3: 在springboot接收的參數使用path variable
 		 * 4: 在springboot回傳結果不是以往的頁面url，而是json字串
 		 * */
-		JSONArray data = recordIF.transformRecordsIntoJSONArray(recordIF.loadRecordsByUserKey(userKey));
-		return data.toString();
+		return recordIF.transformRecordsIntoJSONArray(recordIF.loadRecordsByUserKey(userKey)).toString();
 	}
 	
 	/**

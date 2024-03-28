@@ -27,7 +27,7 @@
 	</style>
 </head>
 <body th:with="userKey=${userKey}, startDate=${startDate}, endDate=${endDate},
- 	imagePath=${imagePath}, coordinatePath=${coordinatePath}" th:object="${statistics}">
+	imagePath=${imagePath}, coordinatePath=${coordinatePath}" th:object="${statistics}">
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-12">
@@ -38,8 +38,6 @@
 						<td>
 							<form th:action="@{/member}" method="get">
 								<input type="hidden" th:name="userKey" th:value="${userKey}">
-								<input type="hidden" th:name="imagePath" th:value="${imagePath}">
-								<input type="hidden" th:name="coordinatePath" th:value="${coordinatePath}">
 								<button type="submit" class="btn btn-outline-secondary" id="return" th:text="返回"></button>
 							</form>
 						</td>
@@ -112,7 +110,6 @@
 				</table>
 			</div><!-- class="col-12" -->
 			<div class="col-12" id="plotDiv">
-				<button type="button" class="btn btn-outline-secondary" th:text="顯示數據圖" id="plotButton"></button>
 				<div id="plot"></div>
 			</div><!-- class="col-12" -->
 		</div>
@@ -120,25 +117,23 @@
 	<script th:inline="javascript">
 		/*<![CDATA[*/
 		$(document).ready(function() {
-			$("#plotButton").click(function() {
-				$.ajax({
-					url: /*[[@{/statistics/plot}]]*/ "/statistics/plot",
-					type: "get",
-					dataType: "text",
-					data: {"imagePath": /*[[${imagePath}]]*/ "",
-						"coordinatePath": /*[[${coordinatePath}]]*/ ""},
-					async: false,
-					cache: false,
-					success: function(data) {
-						var json = JSON.parse(data);
-						var plot = document.getElementById("plot");
-						plot.innerHTML = "<img src='" + json.imgSrc + "' width=1200 height=600>";
-					},
-					error: function(jqXHR, e) {
-						console.log(jqXHR);
-						console.log(e);
-					}
-				});
+			$.ajax({
+				url: /*[[@{/statistics/plot}]]*/ "/statistics/plot",
+				type: "get",
+				dataType: "text",
+				data: {"imagePath": /*[[${imagePath}]]*/ "",
+					"coordinatePath": /*[[${coordinatePath}]]*/ ""},
+				async: false,
+				cache: false,
+				success: function(data) {
+					var json = JSON.parse(data);
+					var plot = document.getElementById("plot");
+					plot.innerHTML = "<img src='" + json.imgSrc + "' width=100%>";
+				},
+				error: function(jqXHR, e) {
+					console.log(jqXHR);
+					console.log(e);
+				}
 			});
 		});
 		/*]]>*/

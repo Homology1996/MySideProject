@@ -15,7 +15,7 @@ public class ControllerBase {
 	
 	private static final Logger log = LoggerFactory.getLogger(ControllerBase.class);
 	
-	private static final int GET_FILE_TIME_LIMIT = 1000 * 5; // 5秒
+	private static final int GET_FILE_TIME_LIMIT = 1000 * 10; // 10秒
 	
 	public static final String WORKING_DIRECTORY = Paths.get("").toAbsolutePath().normalize().toString();
 	
