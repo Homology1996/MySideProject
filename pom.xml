@@ -6,11 +6,11 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.2.2</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>MySideProject</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.1</version>
 	<packaging>war</packaging>
 	<name>MySideProject</name>
 	<description>Demo project for Spring Boot</description>
@@ -67,16 +67,24 @@
     		<artifactId>postgresql</artifactId>
     		<scope>runtime</scope>
 		</dependency>
+		<!-- json -->
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20231013</version>
 		</dependency>
+		<!-- web api -->
 		<dependency>
     		<groupId>com.google.guava</groupId>
     		<artifactId>failureaccess</artifactId>
     		<version>1.0.1</version>
 		</dependency>
+		<!-- bcrypt -->
+		<dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
 	</dependencies>
 
 	<build>

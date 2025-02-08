@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import com.example.Constants;
+import java.io.File;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -15,6 +17,9 @@ import org.springframework.context.annotation.ComponentScan;
 public class MySideProjectApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
+		// 設定log位置
+		System.setProperty("logFilename", Constants.WORKING_DIRECTORY +
+				File.separator + Constants.LOG_FOLDER + File.separator + Constants.LOG_FILE_NAME);
 		SpringApplication.run(MySideProjectApplication.class, args);
 	}
 

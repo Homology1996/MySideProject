@@ -13,4 +13,6 @@ public interface UserIF {
 	
 	void updateUser(int userKey, String password);
 	
+	boolean checkPassword(String password, String encodedPassword);
+	
 }

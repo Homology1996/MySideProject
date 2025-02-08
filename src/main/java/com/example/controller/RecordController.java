@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import com.example.Constants;
 import com.example.model.Record;
 import com.example.service.PlotIF;
 import com.example.service.RecordIF;
@@ -25,7 +26,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class RecordController extends ControllerBase {
 	
-	private static final Logger log = LoggerFactory.getLogger(RecordController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RecordController.class);
 	
 	@Autowired
 	private RecordIF recordIF;
@@ -77,7 +78,7 @@ public class RecordController extends ControllerBase {
 		if (recordDate.isBlank()) {
 			redirectAttributes.addFlashAttribute("noEmptyDate", true);
 		} else {
-			recordIF.createRecord(super.generateKey.generate("daily_record"), recordDate, userKey,
+			recordIF.createRecord(super.generateKey.generate(Constants.RECORD_KEY_SEQUENCE), recordDate, userKey,
 					food, clothes, entertainment, accommodation, transportation);
 			redirectAttributes.addFlashAttribute("createRecordSuccessful", true);
 		}
@@ -128,12 +129,12 @@ public class RecordController extends ControllerBase {
 		} else {
 			model.addAttribute("statistics", statistics);
 			List<Record> records = recordIF.loadRecordsByUserKey(userKey, startDate, endDate);
-			List<Integer> food = new ArrayList<>();
-			List<Integer> clothes = new ArrayList<>();
-			List<Integer> entertainment = new ArrayList<>();
-			List<Integer> accommodation = new ArrayList<>();
-			List<Integer> transportation = new ArrayList<>();
-			List<Integer> ratio = new ArrayList<>();
+			List<Integer> food = new LinkedList<>();
+			List<Integer> clothes = new LinkedList<>();
+			List<Integer> entertainment = new LinkedList<>();
+			List<Integer> accommodation = new LinkedList<>();
+			List<Integer> transportation = new LinkedList<>();
+			List<Integer> ratio = new LinkedList<>();
 			for (Record record : records) {
 				food.add(record.getFood());
 				clothes.add(record.getClothes());
@@ -146,13 +147,14 @@ public class RecordController extends ControllerBase {
 			ratio.add(this.getRatioInt(statistics, "entertainmentRatio"));
 			ratio.add(this.getRatioInt(statistics, "accommodationRatio"));
 			ratio.add(this.getRatioInt(statistics, "transportationRatio"));
-			String uuid = UUID.randomUUID().toString();
-			String scriptPath = WORKING_DIRECTORY + "/src/main/resources/static/scripts/drawPlot.py";
-			String uuidPrefix = WORKING_DIRECTORY + "/images/" + uuid;
-			String coordinate = plotIF.generateCoordinatesFile(uuidPrefix + ".txt", food, clothes,
+			String uuid = UUID.randomUUID().toString(), seperator = File.separator;
+			String scriptPath = Constants.WORKING_DIRECTORY + seperator + "src" + seperator + "main" + seperator +
+					"resources" + seperator + "static" + seperator + "scripts" + seperator + Constants.DRAW_PLOT_SCRIPT;
+			String uuidPrefix = Constants.WORKING_DIRECTORY + seperator + "images" + seperator + uuid;
+			String coordinate = plotIF.generateCoordinatesFile(uuidPrefix + Constants.TEXT_EXTENSION, food, clothes,
 					entertainment, accommodation, transportation, ratio);
 			String coordinatePath = super.getFilePathWhenFileExists(new File(coordinate));
-			String image = plotIF.drawPlot(scriptPath, coordinatePath, uuidPrefix + ".png", food, clothes,
+			String image = plotIF.drawPlot(scriptPath, coordinatePath, uuidPrefix + Constants.PNG_EXTENSION, food, clothes,
 					entertainment, accommodation, transportation, ratio);
 			String imagePath = super.getFilePathWhenFileExists(new File(image));
 			model.addAttribute("coordinatePath", coordinatePath);
@@ -173,26 +175,26 @@ public class RecordController extends ControllerBase {
 		String base64 = null;
 		try {
 			byte[] fileContent = Files.readAllBytes(path);
-			byte[] encoded = Base64.getEncoder().encode(fileContent);
-	        base64 =  new String(encoded);
+			byte[] encodedContent = Base64.getEncoder().encode(fileContent);
+	        base64 =  new String(encodedContent);
 		} catch (IOException ioe) {
-			log.error("Unable to get file content", ioe);
+			LOGGER.error("Unable to get file content", ioe);
 			result.put("IOE", ioe.toString());
 		}
 		if (base64 == null || base64.isBlank()) {
-			result.put("imgSrc", "");
+			result.put("imgSrc", Constants.EMPTY);
 		} else {
 			result.put("imgSrc", "data:image/png;base64, " + base64);
 			File image = path.toFile();
 			if (image.exists()) {
 				if (image.delete()) {
-					log.debug("image deleted");
+					LOGGER.debug("image deleted");
 				}
 			}
 			File coordinate = new File(coordinatePath);
 			if (coordinate.exists()) {
 				if (coordinate.delete()) {
-					log.debug("coordinate deleted");
+					LOGGER.debug("coordinate deleted");
 				}
 			}
 		}

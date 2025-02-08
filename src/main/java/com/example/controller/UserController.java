@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import com.example.Constants;
 import com.example.model.User;
 import com.example.service.UserIF;
 import java.util.*;
@@ -17,7 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;	// 重新
 @Controller
 public class UserController extends ControllerBase {
 	
-	private static final Logger log = LoggerFactory.getLogger(UserController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
 	@Autowired
 	private UserIF userIF;
@@ -38,13 +39,14 @@ public class UserController extends ControllerBase {
 			@RequestParam(value = "account", required = true) String account,
 			@RequestParam(value = "password", required = false) String password) {
 		List<User> allUsers = userIF.loadAllUsers();
-		Optional<User> currentUser = allUsers.stream().filter(
-				user -> user.getAccount().equals(account) && user.getPassword().equals(password)).findFirst();
+		Optional<User> currentUser = allUsers.stream().filter(user ->
+			user.getAccount().equals(account) && userIF.checkPassword(password, user.getPassword())).findFirst();
 		if (currentUser.isPresent()) {
 			int userKey = currentUser.get().getUserKey();
+			String sessionAttributeForUser = super.getSessionAttributeForUser(userKey);
 			model.addAttribute("userKey", userKey); // 要把變數從後端傳送到前端時，就需要使用model
-			super.httpSession.setAttribute("user_" + userKey, account);
-			log.info("user_" + userKey + " login");
+			super.httpSession.setAttribute(sessionAttributeForUser, account);
+			LOGGER.info(sessionAttributeForUser + " login");
 			return "member";
 		} else {
 			/*
@@ -68,11 +70,11 @@ public class UserController extends ControllerBase {
 	@PostMapping("/logout")
 	public String toLogout(Model model,
 			@RequestParam(value = "userKey", required = true) int userKey) {
-		String sessionAttributeForUser = "user_" + userKey;
+		String sessionAttributeForUser = super.getSessionAttributeForUser(userKey);
 		Object session = super.httpSession.getAttribute(sessionAttributeForUser);
 		if (session != null) {
 			super.httpSession.removeAttribute(sessionAttributeForUser);
-			log.info("user_" + userKey + " logout");
+			LOGGER.info(sessionAttributeForUser + " logout");
 		}
 		return "redirect:/";
 	}
@@ -95,10 +97,11 @@ public class UserController extends ControllerBase {
 		List<User> allUsers = userIF.loadAllUsers();
 		boolean isAccountUnique = allUsers.stream().noneMatch(user -> user.getAccount().equals(account));
 		if (isAccountUnique && !account.isBlank()) {
-			int newUserKey = super.generateKey.generate("user_key");
+			int newUserKey = super.generateKey.generate(Constants.USER_KEY_SEQUENCE);
+			String sessionAttributeForUser = super.getSessionAttributeForUser(newUserKey);
 			userIF.createUser(newUserKey, account, password);
-			super.httpSession.setAttribute("user_" + newUserKey, account);
-			log.info("user_" + newUserKey + " login");
+			super.httpSession.setAttribute(sessionAttributeForUser, account);
+			LOGGER.info(sessionAttributeForUser + " login");
 			return super.redirectToMember(redirectAttributes, newUserKey);
 			// addAttribute是作為後端的request parameter使用
 		} else {

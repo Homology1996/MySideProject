@@ -1,10 +1,12 @@
 package com.example.service;
 
 import com.example.model.Record;
+import com.example.Constants;
 import com.example.dao.RecordDaoIF;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
+import java.text.NumberFormat;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -16,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RecordIFImpl implements RecordIF {
 	
-	private static final Logger log = LoggerFactory.getLogger(RecordIFImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RecordIFImpl.class);
 
 	@Autowired
 	private RecordDaoIF recordDao;
@@ -27,57 +29,58 @@ public class RecordIFImpl implements RecordIF {
 		try {
 			record = recordDao.loadRecordByRecordKey(recordKey);
 		} catch (Exception e) {
-			log.error("Cannot load record", e);
+			LOGGER.error("Cannot load record", e);
 		}
 		return record;
 	}
 	
-	private final Comparator<Record> recordComparator = (r1, r2) -> {
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+	private static final Comparator<Record> RECORD_COMPARATOR = (r1, r2) -> {
+		DateFormat dateFormatter = Constants.DATE_FORMATTER;
 		try {
-			int compareDate = Long.compare(formatter.parse(r1.getRecordDate()).getTime(),
-					formatter.parse(r2.getRecordDate()).getTime());
+			int compareDate = Long.compare(
+					dateFormatter.parse(r1.getRecordDate()).getTime(),
+					dateFormatter.parse(r2.getRecordDate()).getTime());
 			if (compareDate != 0) {
 				return compareDate;
 			} else {
 				return Integer.compare(r1.getRecordKey(), r2.getRecordKey());
 			}
 		} catch (Exception e) {
-			log.error("Cannot compare date", e);
+			LOGGER.error("Cannot compare date", e);
 			return 0;
 		}
 	};
 	
 	@Override
 	public List<Record> loadRecordsByUserKey(int userKey) {
-		List<Record> records = null;
+		List<Record> records = new LinkedList<>();
 		try {
 			records = recordDao.loadRecordsByUserKey(userKey).stream()
-					.sorted(this.recordComparator.reversed()).collect(Collectors.toList());
+					.sorted(RECORD_COMPARATOR.reversed()).collect(Collectors.toList());
 		} catch (Exception e) {
-			log.error("Cannot load records", e);
+			LOGGER.error("Cannot load records", e);
 		}
 		return records;
 	}
 	
 	@Override
 	public List<Record> loadRecordsByUserKey(int userKey, String startDate, String endDate) {
-		List<Record> filteredRecords = new ArrayList<>();
+		List<Record> filteredRecords = new LinkedList<>();
 		List<Record> records = this.loadRecordsByUserKey(userKey);
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+		DateFormat dateFormatter = Constants.DATE_FORMATTER;
 		long startTime = 0, endTime = 0;
 		try {
-			Date parsedStartDate = formatter.parse(startDate);
-			Date parsedEndDate = formatter.parse(endDate);
+			Date parsedStartDate = dateFormatter.parse(startDate);
+			Date parsedEndDate = dateFormatter.parse(endDate);
 			startTime = parsedStartDate.getTime();
 			endTime = parsedEndDate.getTime();
 		} catch (Exception e) {
-			log.error("The input date is illegal", e);
+			LOGGER.error("The input date is illegal", e);
 			return null;
 		}
 		for (Record record : records) {
 			try {
-				long time = formatter.parse(record.getRecordDate()).getTime();
+				long time = dateFormatter.parse(record.getRecordDate()).getTime();
 				if (time >= startTime && time < endTime) {
 					filteredRecords.add(record);
 				}
@@ -92,7 +95,7 @@ public class RecordIFImpl implements RecordIF {
 			int food, int clothes, int entertainment, int accommodation, int transportation) {
 		recordDao.createRecord(recordKey, recordDate, userKey,
 				food, clothes, entertainment, accommodation, transportation);
-		log.info(String.format("(recordKey, recordDate, userKey,"
+		LOGGER.info(String.format("(recordKey, recordDate, userKey,"
 				+ " food, clothes, entertainment, accommodation, transportation) ="
 				+ " (%s, %s, %s, %s, %s, %s, %s, %s) created.", recordKey, recordDate, userKey,
 				food, clothes, entertainment, accommodation, transportation));
@@ -104,7 +107,7 @@ public class RecordIFImpl implements RecordIF {
 			int food, int clothes, int entertainment, int accommodation, int transportation) {
 		recordDao.updateRecord(recordKey, recordDate, userKey,
 				food, clothes, entertainment, accommodation, transportation);
-		log.info(String.format("(recordKey, userKey) = (%s, %s) updated.", recordKey, userKey));
+		LOGGER.info(String.format("(recordKey, userKey) = (%s, %s) updated.", recordKey, userKey));
 	}
 	
 	private static double calculateStandardDeviation(List<Double> array) {
@@ -125,11 +128,12 @@ public class RecordIFImpl implements RecordIF {
 	public Map<String, String> getStatistics(String startDate, String endDate, int userKey) {
 		int day = -1;
 		Date parsedStartDate = null, parsedEndDate = null;
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+		DateFormat dateFormatter = Constants.DATE_FORMATTER;
+		NumberFormat numberFormatter = Constants.NUMBER_FORMATTER;
 		long startTime = 0, endTime = 0;
 		try {
-			parsedStartDate = formatter.parse(startDate);
-			parsedEndDate = formatter.parse(endDate);
+			parsedStartDate = dateFormatter.parse(startDate);
+			parsedEndDate = dateFormatter.parse(endDate);
 			startTime = parsedStartDate.getTime();
 			endTime = parsedEndDate.getTime();
 			long millisecondToDay = 1000 * 60 * 60 * 24;
@@ -138,23 +142,14 @@ public class RecordIFImpl implements RecordIF {
 			long passDays = endDay - startDay;
 			day = Integer.parseInt(Long.toString(passDays));
 		} catch (Exception e) {
-			log.error("The input date is illegal", e);
+			LOGGER.error("The input date is illegal", e);
 			return null;
 		}
 		if (day < 1 || startTime == 0 || endTime == 0 || parsedStartDate == null || parsedEndDate == null) {
 			return null;
 		}
 		
-		List<Record> filteredRecords = new ArrayList<>();
-		List<Record> records = this.loadRecordsByUserKey(userKey);
-		for (Record record : records) {
-			try {
-				long time = formatter.parse(record.getRecordDate()).getTime();
-				if (time >= startTime && time < endTime) {
-					filteredRecords.add(record);
-				}
-			} catch (Exception ignore) {}
-		}
+		List<Record> filteredRecords = this.loadRecordsByUserKey(userKey, startDate, endDate);
 		if (filteredRecords.size() < 1) {
 			return null;
 		}
@@ -165,35 +160,35 @@ public class RecordIFImpl implements RecordIF {
 		double foodAverage = 0.0;
 		double foodStandardDeviation = 0.0;
 		double foodRatio = 0.0;
-		List<Double> allFood = new ArrayList<>();
+		List<Double> allFood = new LinkedList<>();
 		int clothesSum = 0;
 		int clothesMin = Integer.MAX_VALUE;
 		int clothesMax = Integer.MIN_VALUE;
 		double clothesAverage = 0.0;
 		double clothesStandardDeviation = 0.0;
 		double clothesRatio = 0.0;
-		List<Double> allClothes = new ArrayList<>();
+		List<Double> allClothes = new LinkedList<>();
 		int entertainmentSum = 0;
 		int entertainmentMin = Integer.MAX_VALUE;
 		int entertainmentMax = Integer.MIN_VALUE;
 		double entertainmentAverage = 0.0;
 		double entertainmentStandardDeviation = 0.0;
 		double entertainmentRatio = 0.0;
-		List<Double> allEntertainment = new ArrayList<>();
+		List<Double> allEntertainment = new LinkedList<>();
 		int accommodationSum = 0;
 		int accommodationMin = Integer.MAX_VALUE;
 		int accommodationMax = Integer.MIN_VALUE;
 		double accommodationAverage = 0.0;
 		double accommodationStandardDeviation = 0.0;
 		double accommodationRatio = 0.0;
-		List<Double> allAccommodation = new ArrayList<>();
+		List<Double> allAccommodation = new LinkedList<>();
 		int transportationSum = 0;
 		int transportationMin = Integer.MAX_VALUE;
 		int transportationMax = Integer.MIN_VALUE;
 		double transportationAverage = 0.0;
 		double transportationStandardDeviation = 0.0;
 		double transportationRatio = 0.0;
-		List<Double> allTransportation = new ArrayList<>();
+		List<Double> allTransportation = new LinkedList<>();
 		
 		for (Record record : filteredRecords) {
 			int food = record.getFood();
@@ -244,31 +239,31 @@ public class RecordIFImpl implements RecordIF {
 		result.put("foodMin", Integer.toString(foodMin));
 		result.put("foodMax", Integer.toString(foodMax));
 		result.put("foodAverage", Double.toString(foodAverage));
-		result.put("foodStandardDeviation", Double.toString(foodStandardDeviation));
+		result.put("foodStandardDeviation", numberFormatter.format(foodStandardDeviation));
 		result.put("foodRatio", Double.toString(foodRatio));
 		result.put("clothesSum", Integer.toString(clothesSum));
 		result.put("clothesMin", Integer.toString(clothesMin));
 		result.put("clothesMax", Integer.toString(clothesMax));
 		result.put("clothesAverage", Double.toString(clothesAverage));
-		result.put("clothesStandardDeviation", Double.toString(clothesStandardDeviation));
+		result.put("clothesStandardDeviation", numberFormatter.format(clothesStandardDeviation));
 		result.put("clothesRatio", Double.toString(clothesRatio));
 		result.put("entertainmentSum", Integer.toString(entertainmentSum));
 		result.put("entertainmentMin", Integer.toString(entertainmentMin));
 		result.put("entertainmentMax", Integer.toString(entertainmentMax));
 		result.put("entertainmentAverage", Double.toString(entertainmentAverage));
-		result.put("entertainmentStandardDeviation", Double.toString(entertainmentStandardDeviation));
+		result.put("entertainmentStandardDeviation", numberFormatter.format(entertainmentStandardDeviation));
 		result.put("entertainmentRatio", Double.toString(entertainmentRatio));
 		result.put("accommodationSum", Integer.toString(accommodationSum));
 		result.put("accommodationMin", Integer.toString(accommodationMin));
 		result.put("accommodationMax", Integer.toString(accommodationMax));
 		result.put("accommodationAverage", Double.toString(accommodationAverage));
-		result.put("accommodationStandardDeviation", Double.toString(accommodationStandardDeviation));
+		result.put("accommodationStandardDeviation", numberFormatter.format(accommodationStandardDeviation));
 		result.put("accommodationRatio", Double.toString(accommodationRatio));
 		result.put("transportationSum", Integer.toString(transportationSum));
 		result.put("transportationMin", Integer.toString(transportationMin));
 		result.put("transportationMax", Integer.toString(transportationMax));
 		result.put("transportationAverage", Double.toString(transportationAverage));
-		result.put("transportationStandardDeviation", Double.toString(transportationStandardDeviation));
+		result.put("transportationStandardDeviation", numberFormatter.format(transportationStandardDeviation));
 		result.put("transportationRatio", Double.toString(transportationRatio));
 		
 		return result;

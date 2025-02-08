@@ -13,6 +13,9 @@ public class DaoBase extends NamedParameterJdbcDaoSupport {
 	@Autowired
 	private DataSource dataSource;
 	
+	/**
+	 * 在利用Spring註解從此類別的建構子生成物件時，就會自動執行此程式
+	 * */
 	@PostConstruct
 	private void initialize() {
 		setDataSource(dataSource);
