@@ -25,6 +25,7 @@ public class Record {
 	
 	public Record(int recordKey, String recordDate, int userKey,
 			int food, int clothes, int entertainment, int accommodation, int transportation) {
+		this();
 		this.setRecordKey(recordKey);
 		this.setRecordDate(recordDate);
 		this.setUserKey(userKey);

@@ -98,7 +98,7 @@ public class ControllerBase {
             return filePath;
         } else {
         	LOGGER.error("Unable to get file");
-        	return "";
+        	return Constants.EMPTY;
         }
 	}
 	

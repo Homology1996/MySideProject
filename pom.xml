@@ -16,6 +16,9 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
+		<json.version>20231013</json.version>
+		<guava.version>1.0.1</guava.version>
+		<bcrypt.version>0.4</bcrypt.version>
 	</properties>
 	<dependencies>
 		<!-- thymeleaf -->
@@ -71,19 +74,19 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20231013</version>
+			<version>${json.version}</version>
 		</dependency>
 		<!-- web api -->
 		<dependency>
     		<groupId>com.google.guava</groupId>
     		<artifactId>failureaccess</artifactId>
-    		<version>1.0.1</version>
+    		<version>${guava.version}</version>
 		</dependency>
 		<!-- bcrypt -->
 		<dependency>
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>
-            <version>0.4</version>
+            <version>${bcrypt.version}</version>
         </dependency>
 	</dependencies>
 

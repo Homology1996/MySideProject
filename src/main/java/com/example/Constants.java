@@ -44,6 +44,6 @@ public class Constants {
 	
 	public static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
 	
-	public static final NumberFormat NUMBER_FORMATTER = new DecimalFormat("###,000.###");
+	public static final NumberFormat NUMBER_FORMATTER = new DecimalFormat("#,##0.###");
 	
 }

@@ -39,7 +39,7 @@ public class RecordController extends ControllerBase {
 	 * */
 	@GetMapping("/member")
 	public String toMember(Model model, RedirectAttributes redirectAttributes,
-			@RequestParam(value = "userKey", required = true) int userKey) {
+			@RequestParam(required = true) int userKey) {
 		if (!super.isLogin(userKey)) {
 			return super.setupNotLoginMessage(redirectAttributes);
 		}
@@ -52,7 +52,7 @@ public class RecordController extends ControllerBase {
 	 * */
 	@GetMapping("/record/show/{userKey}")
 	@ResponseBody
-	public String getRecordsForPage(@PathVariable(value = "userKey", required = true) int userKey) {
+	public String getRecordsForPage(@PathVariable(required = true) int userKey) {
 		/*
 		 * 此方法示範了幾個概念
 		 * 1: 在thymeleaf使用ajax
@@ -68,13 +68,13 @@ public class RecordController extends ControllerBase {
 	 * */
 	@PostMapping("/record/create")
 	public String createRecord(Model model, RedirectAttributes redirectAttributes,
-			@RequestParam(value = "recordDate", required = true) String recordDate,
-			@RequestParam(value = "userKey", required = true) int userKey,
-			@RequestParam(value = "food", required = false, defaultValue = "0") int food,
-			@RequestParam(value = "clothes", required = false, defaultValue = "0") int clothes,
-			@RequestParam(value = "entertainment", required = false, defaultValue = "0") int entertainment,
-			@RequestParam(value = "accommodation", required = false, defaultValue = "0") int accommodation,
-			@RequestParam(value = "transportation", required = false, defaultValue = "0") int transportation) {
+			@RequestParam(required = true) String recordDate,
+			@RequestParam(required = true) int userKey,
+			@RequestParam(required = false, defaultValue = "0") int food,
+			@RequestParam(required = false, defaultValue = "0") int clothes,
+			@RequestParam(required = false, defaultValue = "0") int entertainment,
+			@RequestParam(required = false, defaultValue = "0") int accommodation,
+			@RequestParam(required = false, defaultValue = "0") int transportation) {
 		if (recordDate.isBlank()) {
 			redirectAttributes.addFlashAttribute("noEmptyDate", true);
 		} else {
@@ -91,14 +91,14 @@ public class RecordController extends ControllerBase {
 	@PostMapping("/record/update")
 	@ResponseBody
 	public String updateRecord(
-			@RequestParam(value = "recordKey", required = true) int recordKey,
-			@RequestParam(value = "recordDate", required = true) String recordDate,
-			@RequestParam(value = "userKey", required = true) int userKey,
-			@RequestParam(value = "food", required = false, defaultValue = "0") int food,
-			@RequestParam(value = "clothes", required = false, defaultValue = "0") int clothes,
-			@RequestParam(value = "entertainment", required = false, defaultValue = "0") int entertainment,
-			@RequestParam(value = "accommodation", required = false, defaultValue = "0") int accommodation,
-			@RequestParam(value = "transportation", required = false, defaultValue = "0") int transportation) {
+			@RequestParam(required = true) int recordKey,
+			@RequestParam(required = true) String recordDate,
+			@RequestParam(required = true) int userKey,
+			@RequestParam(required = false, defaultValue = "0") int food,
+			@RequestParam(required = false, defaultValue = "0") int clothes,
+			@RequestParam(required = false, defaultValue = "0") int entertainment,
+			@RequestParam(required = false, defaultValue = "0") int accommodation,
+			@RequestParam(required = false, defaultValue = "0") int transportation) {
 		recordIF.updateRecord(recordKey, recordDate, userKey,
 				food, clothes, entertainment, accommodation, transportation);
 		return "updateSuccessful";
@@ -113,9 +113,9 @@ public class RecordController extends ControllerBase {
 	 * */
 	@GetMapping("/statistics")
 	public String toStatistics(Model model, RedirectAttributes redirectAttributes,
-			@RequestParam(value = "userKey", required = true) int userKey, 
-			@RequestParam(value = "startDate", required = true) String startDate,
-			@RequestParam(value = "endDate", required = true) String endDate) {
+			@RequestParam(required = true) int userKey, 
+			@RequestParam(required = true) String startDate,
+			@RequestParam(required = true) String endDate) {
 		if (!super.isLogin(userKey)) {
 			return super.setupNotLoginMessage(redirectAttributes);
 		}
@@ -148,9 +148,10 @@ public class RecordController extends ControllerBase {
 			ratio.add(this.getRatioInt(statistics, "accommodationRatio"));
 			ratio.add(this.getRatioInt(statistics, "transportationRatio"));
 			String uuid = UUID.randomUUID().toString(), seperator = File.separator;
-			String scriptPath = Constants.WORKING_DIRECTORY + seperator + "src" + seperator + "main" + seperator +
-					"resources" + seperator + "static" + seperator + "scripts" + seperator + Constants.DRAW_PLOT_SCRIPT;
 			String uuidPrefix = Constants.WORKING_DIRECTORY + seperator + "images" + seperator + uuid;
+			String script = Constants.WORKING_DIRECTORY + seperator + "src" + seperator + "main" + seperator +
+					"resources" + seperator + "static" + seperator + "scripts" + seperator + Constants.DRAW_PLOT_SCRIPT;
+			String scriptPath = super.getFilePathWhenFileExists(new File(script));
 			String coordinate = plotIF.generateCoordinatesFile(uuidPrefix + Constants.TEXT_EXTENSION, food, clothes,
 					entertainment, accommodation, transportation, ratio);
 			String coordinatePath = super.getFilePathWhenFileExists(new File(coordinate));
@@ -168,15 +169,16 @@ public class RecordController extends ControllerBase {
 	 * */
 	@GetMapping("/statistics/plot")
 	@ResponseBody
-	public String plot(@RequestParam(value = "imagePath", required = true) String imagePath,
-			@RequestParam(value = "coordinatePath", required = true) String coordinatePath) {
+	public String plot(
+			@RequestParam(required = true) String imagePath,
+			@RequestParam(required = true) String coordinatePath) {
 		JSONObject result = new JSONObject();
 		Path path = Paths.get(imagePath);
 		String base64 = null;
 		try {
 			byte[] fileContent = Files.readAllBytes(path);
 			byte[] encodedContent = Base64.getEncoder().encode(fileContent);
-	        base64 =  new String(encodedContent);
+	        base64 = new String(encodedContent);
 		} catch (IOException ioe) {
 			LOGGER.error("Unable to get file content", ioe);
 			result.put("IOE", ioe.toString());

@@ -14,6 +14,7 @@ public class User {
 	public User() {}
 	
 	public User(int userKey, String account, String password) {
+		this();
 		this.setUserKey(userKey);
 		this.setAccount(account);
 		this.setPassword(password);

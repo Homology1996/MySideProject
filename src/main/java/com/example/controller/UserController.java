@@ -36,8 +36,8 @@ public class UserController extends ControllerBase {
 	 * */
 	@PostMapping("/login")
 	public String toLogin(Model model, RedirectAttributes redirectAttributes,
-			@RequestParam(value = "account", required = true) String account,
-			@RequestParam(value = "password", required = false) String password) {
+			@RequestParam(required = true) String account,
+			@RequestParam(required = false) String password) {
 		List<User> allUsers = userIF.loadAllUsers();
 		Optional<User> currentUser = allUsers.stream().filter(user ->
 			user.getAccount().equals(account) && userIF.checkPassword(password, user.getPassword())).findFirst();
@@ -69,7 +69,7 @@ public class UserController extends ControllerBase {
 	 * */
 	@PostMapping("/logout")
 	public String toLogout(Model model,
-			@RequestParam(value = "userKey", required = true) int userKey) {
+			@RequestParam(required = true) int userKey) {
 		String sessionAttributeForUser = super.getSessionAttributeForUser(userKey);
 		Object session = super.httpSession.getAttribute(sessionAttributeForUser);
 		if (session != null) {
@@ -92,8 +92,8 @@ public class UserController extends ControllerBase {
 	 * */
 	@PostMapping("/register/check")
 	public String registerCheck(Model model, RedirectAttributes redirectAttributes,
-			@RequestParam(value = "account", required = true) String account,
-			@RequestParam(value = "password", required = false) String password) {
+			@RequestParam(required = true) String account,
+			@RequestParam(required = false) String password) {
 		List<User> allUsers = userIF.loadAllUsers();
 		boolean isAccountUnique = allUsers.stream().noneMatch(user -> user.getAccount().equals(account));
 		if (isAccountUnique && !account.isBlank()) {
@@ -116,8 +116,8 @@ public class UserController extends ControllerBase {
 	 * */
 	@PostMapping("/user/update")
 	public String updateUser(Model model, RedirectAttributes redirectAttributes,
-			@RequestParam(value = "userKey", required = true) int userKey,
-			@RequestParam(value = "password", required = false) String password) {
+			@RequestParam(required = true) int userKey,
+			@RequestParam(required = false) String password) {
 		userIF.updateUser(userKey, password);
 		redirectAttributes.addFlashAttribute("updateUserSuccessful", true);
 		return super.redirectToMember(redirectAttributes, userKey);
