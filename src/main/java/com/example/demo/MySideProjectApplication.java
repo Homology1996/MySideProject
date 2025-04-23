@@ -5,6 +5,7 @@ import java.io.File;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 
@@ -22,5 +23,10 @@ public class MySideProjectApplication extends SpringBootServletInitializer {
 				File.separator + Constants.LOG_FOLDER + File.separator + Constants.LOG_FILE_NAME);
 		SpringApplication.run(MySideProjectApplication.class, args);
 	}
+	
+	@Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(MySideProjectApplication.class);
+    }
 
 }
